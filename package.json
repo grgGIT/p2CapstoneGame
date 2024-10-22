@@ -1,0 +1,14 @@
+{
+  "name": "target-shooting-game",
+  "version": "1.0.0",
+  "description": "A multiplayer target shooting game using Express and Socket.io.",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.21.1",
+    "socket.io": "^4.8.0",
+    "socketio": "^1.0.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
