@@ -1,74 +1,152 @@
-let player1 = { name: '', score: 0, image: '' };
-let player2 = { name: '', score: 0, image: '' };
-let currentPlayer = 1;
-let gameActive = false;
-let timer;
-let timeLeft = 120; // 2 minutes
-const targetArea = document.getElementById('targetArea');
-const player1ScoreDisplay = document.getElementById('player1Score');
-const player2ScoreDisplay = document.getElementById('player2Score');
-const currentPlayerNameDisplay = document.getElementById('currentPlayerName');
-const currentPlayerImage = document.getElementById('currentPlayerImage');
-const currentScoreDisplay = document.getElementById('currentScore');
-const timeLeftDisplay = document.getElementById('timeLeft');
-const startGameBtn = document.getElementById('startGameBtn');
-const endGameBtn = document.getElementById('endGameBtn');
-const resultDiv = document.getElementById('result');
-const video = document.getElementById('video');
-const canvas = document.getElementById('canvas');
-const capturedImage = document.getElementById('capturedImage');
-const acceptPictureBtn = document.getElementById('acceptPictureBtn');
-const takePictureBtn = document.getElementById('takePictureBtn');
-const retakeBtn = document.getElementById('retakeBtn');
-const player1Image = document.getElementById('player1Image');
-const player2Image = document.getElementById('player2Image');
-const waitingScreen = document.getElementById('waiting');
+const socket = io();
+let playerName = '';
+let playerIcon = ''; // This will store the captured photo or the random color
+let playerColor = '';
 
-// Start Game
-startGameBtn.addEventListener('click', () => {
-    const initials = document.getElementById('playerInitials').value.toUpperCase();
-    if (initials.length === 3) {
-        player1.name = initials;
+// Handle status updates (connection messages)
+socket.on('statusUpdate', (message) => {
+    document.getElementById('status').textContent = message;
+});
+
+// const init = () =>{
+    
+//     socket.on('getLeaderBoardData', (data) => {})
+//     socket.emit('getLeaderBoardData', 'test')
+// }
+
+
+// Photo capture setup
+document.getElementById('capturePhoto').addEventListener('click', () => {
+    const video = document.createElement('video');
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    const captureButton = document.createElement('button');
+    captureButton.textContent = "Take Photo";
+    const skipButton = document.createElement('button');
+    skipButton.textContent = "Skip Photo";
+
+    // Show video stream to user
+    document.body.appendChild(video);
+    document.body.appendChild(captureButton);
+    document.body.appendChild(skipButton);
+
+    navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+        video.srcObject = stream;
+        video.play();
+    }).catch((err) => {
+        console.error("Error accessing the camera: ", err);
+    });
+
+    // Capture the image when button clicked
+    captureButton.addEventListener('click', () => {
+        // Set canvas size to video size and draw image from video
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Convert canvas to data URL (image)
+        playerIcon = canvas.toDataURL();  // This will store the photo
+        console.log("Photo captured!!");
+
+        // Cleanup: stop the video stream and remove video elements
+        const tracks = video.srcObject.getTracks();
+        tracks.forEach(track => track.stop()); // Stop the camera stream
+        video.remove();
+        captureButton.remove();
+        skipButton.remove();
+
+        alert("Photo captured successfully!");
+    });
+
+
+    // Skip the photo and assign random color
+    skipButton.addEventListener('click', () => {
+        playerColor = '#' + Math.floor(Math.random() * 16777215).toString(16);
+        playerIcon = playerColor; // Use the color as the icon
+        console.log('Random color assigned: ' + playerColor);
+
+        // Cleanup video stream
+        const tracks = video.srcObject.getTracks();
+        tracks.forEach(track => track.stop());
+        video.remove();
+        captureButton.remove();
+        skipButton.remove();
+
+        alert("Photo skipped, random color assigned!");
+    });
+});
+
+// Skip button for moving to game screen
+document.getElementById('continue').addEventListener('click', () => {
+    if (!playerIcon) {
+        alert('Please capture a photo or skip to continue.');
+    } else {
         document.getElementById('startScreen').classList.add('hidden');
-        document.getElementById('photoCapture').classList.remove('hidden');
+        document.getElementById('gameScreen').classList.remove('hidden');
+        startGame();
     }
 });
 
-// Take Picture
-takePictureBtn.addEventListener('click', takePicture);
-
-// Accept Picture
-acceptPictureBtn.addEventListener('click', () => {
-    player1.image = capturedImage.src;
-    player1Image.src = player1.image;
-    document.getElementById('photoCapture').classList.add('hidden');
-    currentPlayerNameDisplay.textContent = player1.name;
-    currentPlayerImage.src = player1.image;
-    startGame();
+// Name input validation
+document.getElementById('playerInitials').addEventListener('input', (event) => {
+    playerName = event.target.value;
 });
 
-// Retake Picture
-retakeBtn.addEventListener('click', takePicture);
-
-// Start the Game
+// Start game function with timer and canvas display
 function startGame() {
-    gameActive = true;
-    createTarget();
-    timer = setInterval(updateTimer, 1000);
-    waitingScreen.classList.add('hidden'); // Hide waiting screen if visible
+    socket.emit('joinGame', { name: playerName || 'Player', icon: playerIcon, color: playerColor });
+
+    // // Show game canvas (replace with actual game logic later)
+    const gameArea = document.getElementById('gameArea');
+    const gameCanvas = document.createElement('div');
+    gameArea.appendChild(gameCanvas);
+    
+    new p5(sketch, gameCanvas);
+
 }
 
-// Create Target
-function createTarget() {
-    const target = document.createElement('div');
-    target.classList.add('target');
-    target.style.top = `${Math.random() * (targetArea.offsetHeight - 50)}px`;
-    target.style.left = `${Math.random() * (targetArea.offsetWidth - 50)}px`;
-    target.addEventListener('click', () => targetHit(target));
-    targetArea.appendChild(target);
+function getRandomColorIcon() {
+    const colors = ['red', 'green', 'blue', 'yellow', 'purple', 'orange'];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    const canvas = document.createElement('canvas');
+    canvas.width = 50;
+    canvas.height = 50;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = randomColor;
+    ctx.beginPath();
+    ctx.arc(25, 25, 25, 0, Math.PI * 2);
+    ctx.fill();
+    return canvas.toDataURL('image/png');
 }
+acceptPictureBtn.addEventListener('click', () => {
+    if (capturedImage.src) {
+        if (currentPlayer === 1) {
+            player1.image = capturedImage.src;
+        } else {
+            player2.image = capturedImage.src;
+        }
+    } else {
+        // If the player doesn't take a picture, assign a random color icon
+        if (currentPlayer === 1) {
+            player1.image = getRandomColorIcon();
+        } else {
+            player2.image = getRandomColorIcon();
+        }
+    }
+    
+    currentPlayerImage.src = currentPlayer === 1 ? player1.image : player2.image;
+    document.getElementById('photoCapture').classList.add('hidden');
+    startGame();
+});
+endGameBtn.addEventListener('click', () => {
+    clearInterval(timer);
+    document.getElementById('scoreboard').classList.remove('hidden');
+    
+    player1NameDisplay.textContent = player1.name;
+    player2NameDisplay.textContent = player2.name;
 
-// Target Hit
+    player1ScoreDisplay.textContent = player1.score;
+    player2ScoreDisplay.textContent = player2.score;
 function targetHit(target) {
     if (!gameActive) return;
 
@@ -85,90 +163,75 @@ function targetHit(target) {
     targetArea.removeChild(target);
     createTarget();
 
-    // Switch players
+    // Switch players (if it's a multiplayer game, adjust switching logic as needed)
     if (currentPlayer === 1) {
         currentPlayer = 2;
         currentPlayerNameDisplay.textContent = player2.name;
-        currentPlayerImage.src = player2.image;
+        currentPlayerImage.src = player2.image || getRandomColorIcon();
     } else {
         currentPlayer = 1;
         currentPlayerNameDisplay.textContent = player1.name;
-        currentPlayerImage.src = player1.image;
-        takePicture(); // Prompt for player 2's picture
+        currentPlayerImage.src = player1.image || getRandomColorIcon();
     }
-}
-
-// Take Picture from Video
-function takePicture() {
-    video.classList.remove('hidden');
-    takePictureBtn.classList.remove('hidden');
-    acceptPictureBtn.classList.add('hidden');
-    retakeBtn.classList.add('hidden');
-
-    navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => {
-            video.srcObject = stream;
-        })
-        .catch(err => {
-            console.error("Error accessing camera: " + err);
-        });
-}
-
-// Capture Image
-function captureImage() {
-    const context = canvas.getContext('2d');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const imageDataUrl = canvas.toDataURL('image/png');
-    capturedImage.src = imageDataUrl;
-
-    video.classList.add('hidden');
-    capturedImage.classList.remove('hidden');
-    acceptPictureBtn.classList.remove('hidden');
-    retakeBtn.classList.remove('hidden');
-}
-
-// Update Timer
-function updateTimer() {
-    timeLeft--;
-    timeLeftDisplay.textContent = timeLeft;
-    if (timeLeft <= 0) {
-        clearInterval(timer);
-        endTurn();
-    }
-}
-
-// End Turn
-function endTurn() {
-    gameActive = false;
-    resultDiv.textContent = `Turn ended! Player 1 Score: ${player1.score}, Player 2 Score: ${player2.score}`;
-    resultDiv.classList.remove('hidden');
-    endGameBtn.classList.remove('hidden');
-}
-
-// End Game
-endGameBtn.addEventListener('click', () => {
-    clearInterval(timer);
-    document.getElementById('scoreboard').classList.remove('hidden');
-    player1NameDisplay.textContent = player1.name;
-    player2NameDisplay.textContent = player2.name;
-    player1ScoreDisplay.textContent = player1.score;
-    player2ScoreDisplay.textContent = player2.score;
+}    player1Image.src = player1.image;
+    player2Image.src = player2.image;
 });
 
-// Handle User Media Stream
-takePictureBtn.addEventListener('click', captureImage);
 
-const socket = io();
+// Display final results
+function showResults() {
+    document.getElementById('gameScreen').classList.add('hidden');
+    document.getElementById('resultsScreen').classList.remove('hidden');
+    document.getElementById('finalScores').textContent = `Final Score: ${playerScore}`;
+}
 
-// Example event for joining the game
-document.getElementById('start-game').addEventListener('click', () => {
-    const playerData = {
-        name: prompt('Enter your name:'),
-        score: 0,
-    };
-    socket.emit('joinGame', playerData);
+// Update player list on connection
+socket.on('newPlayer', (playerData) => {
+    console.log(`${playerData.name} has joined the game.`);
 });
 
-// Add your game logic here...
+
+// socket.emit('joinGame', { name: playerName || 'Player', icon: playerIcon, color: playerColor });
+
+    // // Show game canvas (replace with actual game logic later)
+    // const canvas = document.createElement('canvas');
+    // const context = canvas.getContext('2d');
+    // canvas.width = 800;
+    // canvas.height = 400;
+    // document.getElementById('gameArea').appendChild(canvas);
+
+    // let timer = 60;
+    // const interval = setInterval(() => {
+    //     document.getElementById('timer').textContent = timer;
+    //     timer--;
+
+    //     // Example canvas game logic - this is where your game goes!
+    //     context.clearRect(0, 0, canvas.width, canvas.height);
+
+    //      // Draw a random box on the canvas
+    //      const boxX = Math.random() * (canvas.width - 50);
+    //      const boxY = Math.random() * (canvas.height - 50);
+    //      context.fillStyle = playerColor || '#000';
+    //      context.fillRect(boxX, boxY, 50, 50);
+ 
+    //      // Detect box clicks and increase score
+    //      canvas.addEventListener('click', (event) => {
+    //          const rect = canvas.getBoundingClientRect();
+    //          const x = event.clientX - rect.left;
+    //          const y = event.clientY - rect.top;
+ 
+    //          if (x >= boxX && x <= boxX + 50 && y >= boxY && y <= boxY + 50) {
+    //              playerScore++;
+    //              document.getElementById('scoreboard').textContent = `Score: ${playerScore}`;
+    //              console.log('Box clicked! Score: ' + playerScore);
+    //          }
+    //      });
+ 
+    //      if (timer < 0) {
+    //          clearInterval(interval);
+    //          showResults();
+    //      }
+    //  }, 1000);
+
+
+    

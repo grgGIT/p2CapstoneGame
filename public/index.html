@@ -3,51 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplayer Game</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.10.0/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.10.0/addons/p5.sound.min.js"></script>
+    <script src="sketch.js"></script>
     <link rel="stylesheet" href="game.css">
-    <title>Target Shooting Game</title>
 </head>
 <body>
-    <div class="container">
-        <h1>Target Shooting Game</h1>
-        
-        <div id="startScreen">
-            <h2>Enter Initials</h2>
-            <input type="text" id="playerInitials" maxlength="3" placeholder="AAA">
-            <button id="startGameBtn">Start Game</button>
-        </div>
-
-        <div id="photoCapture" class="hidden">
-            <h2>Take Your Picture</h2>
-            <video id="video" autoplay></video>
-            <button id="takePictureBtn">Take Picture</button>
-            <button id="retakeBtn" class="hidden">Retake</button>
-            <canvas id="canvas" class="hidden"></canvas>
-            <img id="capturedImage" class="hidden" />
-            <button id="acceptPictureBtn" class="hidden">Accept Picture</button>
-        </div>
-
-        <div id="gameArea" class="hidden">
-            <div id="playerInfo">
-                <span id="currentPlayerName"></span>
-                <img id="currentPlayerImage" class="player-image" />
-                <span id="currentScore">Score: 0</span>
-                <span id="timer">Time: <span id="timeLeft">120</span>s</span>
-            </div>
-            <div id="targetArea"></div>
-            <button id="endGameBtn" class="hidden">End Game</button>
-            <div id="result" class="hidden"></div>
-        </div>
-
-        <div id="scoreboard" class="hidden">
-            <h2>Scoreboard</h2>
-            <p>Player 1: <span id="player1Name"></span> - <span id="player1Score">0</span> <img id="player1Image" class="player-image" /></p>
-            <p>Player 2: <span id="player2Name"></span> - <span id="player2Score">0</span> <img id="player2Image" class="player-image" /></p>
-        </div>
-
-        <div id="waiting" class="hidden">
-            <h2>Waiting for other player...</h2>
-        </div>
+    <div id="status">Not connected</div>
+    
+    <div id="startScreen">
+        <input type="text" id="playerInitials" maxlength="3" placeholder="Enter 3-character name">
+        <button id="capturePhoto">Capture Photo</button>
+        <button id="continue">Continue</button>
     </div>
+
+    <div id="gameScreen" class="hidden">
+        <div id="scoreboard">
+            <div id="player1"></div>
+            <div id="player2"></div>
+        </div>
+        <div id="gameArea"></div> <!-- Area for the canvas -->
+    </div>
+
+    <div id="resultsScreen" class="hidden">
+        <h2>Game Over!</h2>
+        <p id="finalScores"></p>
+    </div>
+
+    <!-- <script src="sketch.js"></script> -->
+    <script src="/socket.io/socket.io.js"></script>
     <script src="game.js"></script>
 </body>
 </html>
