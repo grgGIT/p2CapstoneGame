@@ -1,9 +1,23 @@
+body {
+    background: linear-gradient(135deg, #ff6b6b, #ffcc33, #1dd1a1, #54a0ff);
+background-size: 400% 400%;
+animation: carnivalGradient 10s ease infinite;
+
+@keyframes carnivalGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+}
+
 .hidden {
     display: none;
 }
 
 #status {
-    font-size: 24px;
+    font-size: 32px;
+    color: rgb(134, 199, 156);
+    text-shadow: 2px 2px black;
     margin: 20px;
 }
 
@@ -12,18 +26,92 @@
 }
 
 #gameScreen {
-    margin: 50px;
-    font-size: 24px;
+    background: linear-gradient(135deg, #1a1a1a, #333); /* Dark gradient */
+    position: relative;
+    padding: 20px;
 }
 
 #timer {
-    font-size: 32px;
+    font-size: 36px;
+    color: white;
+    text-shadow: 2px 2px black;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.7); /* Semi-transparent background for readability */
+    padding: 10px;
+    border-radius: 10px;
 }
 
 #scoreboard {
     margin: 20px;
+    padding: 20px;
+    background-color: rgba(245, 206, 206, 0.7); /* Dark semi-transparent background */
+    border: 2px solid red;
+    box-shadow: 0 0 15px red; /* Glowing red border */
+    text-shadow: 1px 1px black;
+    border-radius: 10px;
 }
 
 #resultsScreen {
-    margin: 50px;
+    background: radial-gradient(circle, rgb(255, 155, 155) 0%, rgba(0,0,0,1) 100%); /* Bloody red to black gradient */
+    padding: 50px;
+    text-align: center;
+}
+
+.input-zombie {
+    padding: 10px;
+    background-color: #333;
+    border: 2px solid red;
+    color: white;
+    font-size: 24px;
+    font-family: 'Bangers', sans-serif;
+    text-align: center;
+    width: 300px;
+    box-shadow: 0 0 10px red; /* Red glow */
+    border-radius: 10px;
+}
+
+.btn-zombie {
+    padding: 15px 30px;
+    background: linear-gradient(135deg, #800000, #b30000); /* Cool gradient effect */
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    margin: 10px;
+    transition: transform 0.2s ease-in-out, background 0.2s ease-in-out;
+    border-radius: 5px;
+    box-shadow: 0 0 10px red; /* Glow effect */
+}
+
+.btn-zombie:hover {
+    transform: scale(1.1);
+    background: linear-gradient(135deg, #ff0000, #cc0000); /* Change color on hover */
+}
+
+.zombie-text {
+    font-size: 48px;
+    color: white;
+    text-shadow: 3px 3px black, 0 0 10px rgb(178, 190, 170); /* Glowing red effect on text */
+}
+
+.zombie-background {
+    background: radial-gradient(circle, rgba(118, 195, 221, 0.2), rgb(29, 66, 28)); /* Bloody splatter-like gradient */
+    background-size: cover;
+    padding: 20px;
+}
+.player-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.player-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
 }

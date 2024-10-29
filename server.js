@@ -46,10 +46,16 @@ io.on('connection', (socket) => {
         socket.broadcast.to('main-game').emit('newPlayer', playerData);
     });
 
+    socket.on('squareClicked', (data) => {
+        console.log('Score received: ', data.score); // Add this log to check if score is received
+        io.emit('updateScore', data); // Broadcast updated score to all clients
+      });
+
     // Handle player disconnect
     socket.on('disconnect', () => {
         console.log('A player disconnected: ' + socket.id);
         socket.broadcast.to('main-game').emit('statusUpdate', 'A player has disconnected');
+        
     });
 });
 

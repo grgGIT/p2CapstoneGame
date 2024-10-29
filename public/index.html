@@ -10,25 +10,29 @@
     <link rel="stylesheet" href="game.css">
 </head>
 <body>
-    <div id="status">Not connected</div>
+    <div id="status" class="zombie-text">Not connected</div>
     
-    <div id="startScreen">
-        <input type="text" id="playerInitials" maxlength="3" placeholder="Enter 3-character name">
-        <button id="capturePhoto">Capture Photo</button>
-        <button id="continue">Continue</button>
+    <div id="startScreen" class="zombie-background">
+        <input type="text" id="playerInitials" maxlength="3" placeholder="Enter 3-character name" class="input-zombie">
+        <button id="capturePhoto" class="btn-zombie">Capture Photo</button>
+        <button id="continue" class="btn-zombie">Continue</button>
     </div>
 
-    <div id="gameScreen" class="hidden">
+    <div id="gameScreen" class="hidden" class="hidden zombie-background">
         <div id="scoreboard">
-            <div id="player1"></div>
-            <div id="player2"></div>
+            <div id="player1">Player Name
+            </div>
+
+            <!-- </div>endGame
+            <div id="player2"></div> -->
         </div>
-        <div id="gameArea"></div> <!-- Area for the canvas -->
+        <div id="gameArea"><button id="endGameBtn" class="btn-zombie">Proceed to Scorboard</button></div> <!-- Area for the canvas -->
+        
     </div>
 
     <div id="resultsScreen" class="hidden">
         <h2>Game Over!</h2>
-        <p id="finalScores"></p>
+        <p id="finalScores" class="zombie-text"></p>
     </div>
 
     <!-- <script src="sketch.js"></script> -->

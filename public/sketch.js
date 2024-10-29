@@ -1,4 +1,6 @@
+
 let sketch = function(p) {
+  const socket = io();
   let squares = [];
   let explosions = [];
   let score = 0;
@@ -9,8 +11,9 @@ let sketch = function(p) {
 
   p.preload = function() {
     // Load the target image and explosion gif
-    targetImg = p.loadImage('targ.png');
-    explosionGif = p.loadImage('xpl.gif');
+    targetImg = p.loadImage('bird.gif');
+    explosionGif = p.loadImage('feathers_gif.gif');
+    bgImg = p.loadImage('proj2_bg.png');
   };
 
   p.setup = function() {
@@ -24,7 +27,7 @@ let sketch = function(p) {
   };
 
   p.draw = function() {
-    p.background(135, 206, 235); // Sky blue background
+    p.background(bgImg); // Sky blue background
 
     let hovering = false;
     // Timer logic
@@ -84,6 +87,8 @@ let sketch = function(p) {
     for (let i = squares.length - 1; i >= 0; i--) {
       if (squares[i].clicked()) {
         score++;
+        console.log("Emitting score: " + score)
+        socket.emit('squareClicked', { score: score });
         explosions.push(new Explosion(squares[i].x, squares[i].y, squares[i].w, squares[i].h)); // Add explosion
         squares.splice(i, 1); // Remove square when clicked
       }
